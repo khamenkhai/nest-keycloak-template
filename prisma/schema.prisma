@@ -1,0 +1,78 @@
+generator client {
+  provider     = "prisma-client"
+  moduleFormat = "cjs"
+  output       = "../src/database/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// ─── Auth / User Tables ──────────────────────────────────────────────────────
+
+model User {
+  id             Int      @id @default(autoincrement())
+  keycloakUserId String?  @unique @map("keycloak_user_id")
+  name           String   @db.VarChar(255)
+  email          String   @unique @db.VarChar(255)
+  password       String   @db.VarChar(255)
+  role           UserRole @default(USER)
+  status         Boolean  @default(true)
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  posts Post[]
+
+  @@map("users")
+}
+
+// ─── Starter Kit Feature Tables ──────────────────────────────────────────────
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique @db.VarChar(255)
+  description String? @db.Text
+  isDeleted   Boolean @default(false) @map("is_deleted")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  posts Post[]
+
+  @@map("categories")
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(255)
+  content     String?    @db.Text
+  status      PostStatus @default(DRAFT)
+  authorId    Int        @map("author_id")
+  categoryId  Int?       @map("category_id")
+  isDeleted   Boolean    @default(false) @map("is_deleted")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @updatedAt @map("updated_at")
+
+  author   User      @relation(fields: [authorId], references: [id])
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+  @@map("posts")
+}
