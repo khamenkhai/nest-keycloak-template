@@ -7,7 +7,7 @@ import {
 
 @Injectable()
 export class KeycloakPolicyService {
-  private readonly keycloakClientId: string = process.env.CLIENT_KEYCLOAK_ID!;
+  private readonly keycloakClientId: string = process.env.KEYCLOAK_CLIENT_ID!;
 
   constructor(private readonly keycloakService: KeycloakService) {}
 

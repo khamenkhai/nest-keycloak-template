@@ -13,16 +13,19 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { FetchCategoriesDto } from './dto/fetch-category.dto';
 import { CategoryListItemDto, CategoryResponseDto } from './dto/response.dto';
+import { Prisma } from 'src/database/generated/client/client';
+
+const categorySelect = {
+  id: true,
+  name: true,
+  description: true,
+} satisfies Prisma.CategorySelect;
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly baseSelect = {
-    id: true,
-    name: true,
-    description: true,
-  } as const;
+  private readonly baseSelect = categorySelect;
 
   async create(
     dto: CreateCategoryDto,
@@ -36,7 +39,7 @@ export class CategoriesService {
         select: this.baseSelect,
       });
 
-      return { data: data as CategoryResponseDto };
+      return { data };
     } catch (error) {
       if (error?.code === 'P2002') {
         throw new BadRequestException('Category name already exists.');
@@ -74,7 +77,7 @@ export class CategoriesService {
     ]);
 
     return {
-      data: data as CategoryListItemDto[],
+      data: data,
       total,
       page,
       lastPage: Math.ceil(total / limit),
@@ -89,7 +92,7 @@ export class CategoriesService {
 
     if (!data) throw new NotFoundException(`Category #${id} not found`);
 
-    return { data: data as CategoryResponseDto };
+    return { data: data };
   }
 
   async update(
@@ -111,7 +114,7 @@ export class CategoriesService {
         select: this.baseSelect,
       });
 
-      return { data: data as CategoryResponseDto };
+      return { data };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       if (error?.code === 'P2002') {
@@ -135,6 +138,6 @@ export class CategoriesService {
       select: this.baseSelect,
     });
 
-    return { data: data as CategoryResponseDto };
+    return { data: data };
   }
 }

@@ -9,9 +9,14 @@ import { join } from 'path';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { AuthGuard, KeycloakConnectModule } from 'nest-keycloak-connect';
+import {
+  AuthGuard,
+  KeycloakConnectModule,
+  ResourceGuard,
+} from 'nest-keycloak-connect';
 import { KeycloakConfig } from './keycloak/keyclock';
 import { KeycloakConfigModule } from './keycloak/keycloak-config.module';
+import { KeycloakModule } from './keycloak';
 import { UserMiddleware } from './common/middlewares/user.middleware';
 import { UploadModule } from './common/upload/upload.module';
 import { CategoriesModule } from './modules/categories/categories.module';
@@ -42,6 +47,7 @@ import { PostsModule } from './modules/posts/posts.module';
           { path: '/v1/auth', module: AuthModule },
           { path: '/v1/categories', module: CategoriesModule },
           { path: '/v1/posts', module: PostsModule },
+          { path: '/v1/keycloak', module: KeycloakModule },
         ],
       },
     ]),
@@ -54,9 +60,11 @@ import { PostsModule } from './modules/posts/posts.module';
     CategoriesModule,
     PostsModule,
     UploadModule,
+    KeycloakModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
+    { provide: APP_GUARD, useClass: ResourceGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
   ],

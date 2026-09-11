@@ -23,14 +23,14 @@ export class ResponseInterceptor<T> implements NestInterceptor<
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<ApiResponse<T> | any> {
+  ): Observable<ApiResponse<T>> {
     if (context.getType<'http' | 'rpc'>() !== 'http') {
       return next.handle();
     }
 
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
-    const isMobile = request.route.path.includes('mobile');
+
     const isMetrics =
       request.route.path.includes('metrics') ||
       request.url.includes('/metrics');
@@ -38,19 +38,6 @@ export class ResponseInterceptor<T> implements NestInterceptor<
     // Skip interceptor for metrics endpoint - return raw Prometheus format
     if (isMetrics) {
       return next.handle();
-    }
-
-    if (isMobile) {
-      return next.handle().pipe(
-        map((data) => ({
-          authorized: true,
-          success: response.statusCode >= 200 && response.statusCode < 300,
-          message: this.getSuccessMessage(request.method),
-          data,
-          timestamp: new Date().toISOString(),
-          path: request.url,
-        })),
-      );
     }
 
     return next.handle().pipe(

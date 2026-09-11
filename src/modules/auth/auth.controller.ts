@@ -2,7 +2,12 @@ import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'nest-keycloak-connect';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginResponseDto, RefreshTokenDto, RegisterDto } from './dto';
+import {
+  LoginDto,
+  LoginResponseDto,
+  RefreshTokenDto,
+  RegisterDto,
+} from './dto';
 import { ApiSingleResponse } from 'src/common/decorators/api-response.decorator';
 
 @Controller('')

@@ -32,10 +32,10 @@ export class PostResponseDto {
   categoryId?: number | null;
 
   @ApiPropertyOptional({ type: PostAuthorDto })
-  author?: PostAuthorDto;
+  author?: PostAuthorDto | null;
 
   @ApiPropertyOptional({ type: CategoryResponseDto })
-  category?: CategoryResponseDto;
+  category?: CategoryResponseDto | null;
 }
 
 export class PostListItemDto {
@@ -58,10 +58,10 @@ export class PostListItemDto {
   categoryId?: number | null;
 
   @ApiPropertyOptional({ type: PostAuthorDto })
-  author?: PostAuthorDto;
+  author?: PostAuthorDto | null;
 
   @ApiPropertyOptional({ type: CategoryResponseDto })
-  category?: CategoryResponseDto;
+  category?: CategoryResponseDto | null;
 }
 
 export class PostPaginatedResponseDto {

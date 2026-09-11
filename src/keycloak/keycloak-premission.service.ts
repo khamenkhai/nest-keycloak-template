@@ -4,7 +4,7 @@ import PolicyRepresentation from '@keycloak/keycloak-admin-client/lib/defs/polic
 
 @Injectable()
 export class KeycloakPermissionService {
-  private readonly keycloakClientId: string = process.env.CLIENT_KEYCLOAK_ID!;
+  private readonly keycloakClientId: string = process.env.KEYCLOAK_CLIENT_ID!;
 
   constructor(private readonly keycloakService: KeycloakService) {}
 

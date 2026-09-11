@@ -14,7 +14,7 @@ export class KeycloakConfig implements KeycloakConnectOptionsFactory {
       realm: process.env.KEYCLOAK_REALM_NAME,
       clientId: process.env.KEYCLOAK_CLIENT_ID,
       secret: process.env.KEYCLOAK_CLIENT_SECRET!,
-      policyEnforcement: PolicyEnforcementMode.ENFORCING,
+      policyEnforcement: PolicyEnforcementMode.PERMISSIVE,
       tokenValidation: TokenValidation.ONLINE,
     };
   }

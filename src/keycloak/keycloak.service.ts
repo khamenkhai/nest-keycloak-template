@@ -235,4 +235,34 @@ export class KeycloakService implements OnModuleInit {
 
     this.logger.log('User logout successful');
   }
+
+  /**
+   * Find a group by name and return its ID
+   */
+  async findGroupByName(groupName: string): Promise<string | null> {
+    const groups = await this.kcAdminClient.groups.find({
+      realm: this.realmName,
+      search: groupName,
+    });
+    const group = groups.find((g) => g.name === groupName);
+    return group?.id ?? null;
+  }
+
+  /**
+   * Assign a user to a group
+   */
+  async addUserToGroup(userId: string, groupName: string): Promise<void> {
+    const groupId = await this.findGroupByName(groupName);
+    if (!groupId) {
+      throw new Error(`Group "${groupName}" not found in Keycloak`);
+    }
+
+    await this.kcAdminClient.users.addToGroup({
+      id: userId,
+      groupId,
+      realm: this.realmName,
+    });
+
+    this.logger.log(`User ${userId} added to group "${groupName}"`);
+  }
 }

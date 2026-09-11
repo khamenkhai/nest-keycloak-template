@@ -76,6 +76,16 @@ export class AuthService {
         );
       }
 
+      // Assign new user to 'user' group (read-only by default)
+      try {
+        await this.keycloakService.addUserToGroup(kcUser.id, 'user');
+      } catch (groupError) {
+        this.logger.warn('Failed to assign user to group', {
+          error: groupError.message,
+          email: registerDto.email,
+        });
+      }
+
       const user = await this.prismaService.user.create({
         data: {
           keycloakUserId: kcUser.id,

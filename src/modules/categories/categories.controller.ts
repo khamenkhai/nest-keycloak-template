@@ -10,15 +10,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ApiPaginatedResponse,
   ApiSingleResponse,
 } from 'src/common/decorators/api-response.decorator';
+import { Resource, Scopes } from 'nest-keycloak-connect';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -27,11 +24,13 @@ import { CategoryListItemDto, CategoryResponseDto } from './dto/response.dto';
 
 @ApiTags('Categories')
 @ApiBearerAuth('Authorization')
+@Resource('Categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @Scopes('create')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiSingleResponse(
     'Category created successfully',
@@ -45,6 +44,7 @@ export class CategoriesController {
   }
 
   @Get()
+  @Scopes('read')
   @ApiOperation({ summary: 'Get all categories (Paginated)' })
   @ApiPaginatedResponse(
     'List of categories retrieved',
@@ -56,6 +56,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @Scopes('read')
   @ApiOperation({ summary: 'Get category by ID' })
   @ApiSingleResponse(
     'Category details retrieved',
@@ -67,6 +68,7 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @Scopes('update')
   @ApiOperation({ summary: 'Update category' })
   @ApiSingleResponse(
     'Category updated successfully',
@@ -83,6 +85,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @Scopes('delete')
   @ApiOperation({ summary: 'Delete category' })
   @ApiSingleResponse(
     'Category deleted successfully',

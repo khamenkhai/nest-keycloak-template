@@ -25,10 +25,7 @@ function normalizeForCompare(value: unknown): unknown {
   return value;
 }
 
-function stripIgnoredKeys(
-  input: unknown,
-  ignoredKeys: Set<string>,
-): unknown {
+function stripIgnoredKeys(input: unknown, ignoredKeys: Set<string>): unknown {
   if (Array.isArray(input)) {
     return input.map((v) => stripIgnoredKeys(v, ignoredKeys));
   }
@@ -61,4 +58,3 @@ export function shouldSendDataSyncLog(params: {
 
   return JSON.stringify(beforeStripped) !== JSON.stringify(afterStripped);
 }
-

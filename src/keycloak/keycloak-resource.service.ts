@@ -4,7 +4,7 @@ import ResourceRepresentation from '@keycloak/keycloak-admin-client/lib/defs/res
 
 @Injectable()
 export class KeycloakResourceService {
-  private readonly keycloakClientId: string = process.env.CLIENT_KEYCLOAK_ID!;
+  private readonly keycloakClientId: string = process.env.KEYCLOAK_CLIENT_ID!;
 
   constructor(private readonly keycloakService: KeycloakService) {}
 

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -15,22 +14,27 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { FetchPostsDto } from './dto/fetch-post.dto';
 import { PostListItemDto, PostResponseDto } from './dto/response.dto';
 
+const postSelectWithRelations = {
+  id: true,
+  title: true,
+  content: true,
+  status: true,
+  authorId: true,
+  categoryId: true,
+  author: { select: { id: true, name: true, email: true } },
+  category: { select: { id: true, name: true, description: true } },
+} satisfies Prisma.PostSelect;
+
 @Injectable()
 export class PostsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  private readonly selectWithRelations = {
-    id: true,
-    title: true,
-    content: true,
-    status: true,
-    authorId: true,
-    categoryId: true,
-    author: { select: { id: true, name: true, email: true } },
-    category: { select: { id: true, name: true, description: true } },
-  } as const;
+  private readonly selectWithRelations = postSelectWithRelations;
 
-  async create(dto: CreatePostDto, authorId: number): Promise<SingleResult<PostResponseDto>> {
+  async create(
+    dto: CreatePostDto,
+    authorId: number,
+  ): Promise<SingleResult<PostResponseDto>> {
     try {
       const data = await this.prisma.post.create({
         data: {
@@ -43,7 +47,7 @@ export class PostsService {
         select: this.selectWithRelations,
       });
 
-      return { data: data as PostResponseDto };
+      return { data };
     } catch (error) {
       throw new InternalServerErrorException(
         `An unexpected error occurred while creating the post: ${error.message}`,
@@ -54,7 +58,15 @@ export class PostsService {
   async findAll(
     query: FetchPostsDto,
   ): Promise<PaginatedResult<PostListItemDto>> {
-    const { page = 1, limit = 10, status, categoryId, search, sortBy, sortOrder } = query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      categoryId,
+      search,
+      sortBy,
+      sortOrder,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.PostWhereInput = { isDeleted: false };
@@ -83,7 +95,7 @@ export class PostsService {
     ]);
 
     return {
-      data: data as PostListItemDto[],
+      data,
       total,
       page,
       lastPage: Math.ceil(total / limit),
@@ -98,7 +110,7 @@ export class PostsService {
 
     if (!data) throw new NotFoundException(`Post #${id} not found`);
 
-    return { data: data as PostResponseDto };
+    return { data };
   }
 
   async update(
@@ -122,7 +134,7 @@ export class PostsService {
         select: this.selectWithRelations,
       });
 
-      return { data: data as PostResponseDto };
+      return { data };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new InternalServerErrorException(
@@ -143,6 +155,6 @@ export class PostsService {
       select: this.selectWithRelations,
     });
 
-    return { data: data as PostResponseDto };
+    return { data };
   }
 }

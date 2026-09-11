@@ -11,7 +11,8 @@ export interface AuthTokens {
 }
 
 function baseCookieOptions(): CookieOptions {
-  const secure = (process.env.COOKIE_SECURE ?? 'false').toLowerCase() === 'true';
+  const secure =
+    (process.env.COOKIE_SECURE ?? 'false').toLowerCase() === 'true';
   const sameSite = (process.env.COOKIE_SAMESITE ??
     'lax') as CookieOptions['sameSite'];
   const domain = process.env.COOKIE_DOMAIN || undefined;

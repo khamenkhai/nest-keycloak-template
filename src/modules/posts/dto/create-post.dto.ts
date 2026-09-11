@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, IsEnum, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePostDto {
@@ -12,7 +18,10 @@ export class CreatePostDto {
   @IsString()
   content?: string;
 
-  @ApiPropertyOptional({ enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'], default: 'DRAFT' })
+  @ApiPropertyOptional({
+    enum: ['DRAFT', 'PUBLISHED', 'ARCHIVED'],
+    default: 'DRAFT',
+  })
   @IsOptional()
   @IsEnum(['DRAFT', 'PUBLISHED', 'ARCHIVED'])
   status?: string;

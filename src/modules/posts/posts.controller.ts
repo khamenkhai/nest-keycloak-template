@@ -10,15 +10,12 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ApiPaginatedResponse,
   ApiSingleResponse,
 } from 'src/common/decorators/api-response.decorator';
+import { Resource, Scopes } from 'nest-keycloak-connect';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -27,11 +24,13 @@ import { PostListItemDto, PostResponseDto } from './dto/response.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth('Authorization')
+@Resource('Posts')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
+  @Scopes('create')
   @ApiOperation({ summary: 'Create a new post' })
   @ApiSingleResponse(
     'Post created successfully',
@@ -46,6 +45,7 @@ export class PostsController {
   }
 
   @Get()
+  @Scopes('read')
   @ApiOperation({ summary: 'Get all posts (Paginated)' })
   @ApiPaginatedResponse(
     'List of posts retrieved',
@@ -57,6 +57,7 @@ export class PostsController {
   }
 
   @Get(':id')
+  @Scopes('read')
   @ApiOperation({ summary: 'Get post by ID' })
   @ApiSingleResponse(
     'Post details retrieved',
@@ -68,6 +69,7 @@ export class PostsController {
   }
 
   @Patch(':id')
+  @Scopes('update')
   @ApiOperation({ summary: 'Update post' })
   @ApiSingleResponse(
     'Post updated successfully',
@@ -76,14 +78,12 @@ export class PostsController {
     HttpStatus.OK,
     'Resource updated successfully',
   )
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdatePostDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdatePostDto) {
     return this.postsService.update(id, dto);
   }
 
   @Delete(':id')
+  @Scopes('delete')
   @ApiOperation({ summary: 'Delete post' })
   @ApiSingleResponse(
     'Post deleted successfully',
