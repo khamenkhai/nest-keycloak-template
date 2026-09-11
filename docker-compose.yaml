@@ -1,7 +1,7 @@
 services:
   # db:
   #   image: postgres:16
-  #   container_name: cannopy_nest_template_db
+  #   container_name: nest_template_container
   #   env_file:
   #     - .env.development.local
   #   healthcheck:

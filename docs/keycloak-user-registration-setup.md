@@ -1,13 +1,13 @@
 # Keycloak setup for API user registration
 
-This service registers users through the Keycloak Admin REST API, then immediately requests a token with the user's email and password. Configure the `CANNOPY` realm and the `Cannopy_client` client so Keycloak does not require an interactive browser setup before issuing that token.
+This service registers users through the Keycloak Admin REST API, then immediately requests a token with the user's email and password. Configure the `SYSTEM_REALM` realm and the `api_client` client so Keycloak does not require an interactive browser setup before issuing that token.
 
 > These instructions are for the Keycloak 26 container in `docker-compose.yaml`. Use a Keycloak administrator account to make the changes.
 
 ## 1. Select the realm
 
 1. Open `http://localhost:8080` and sign in to the Keycloak Admin Console.
-2. In the realm selector, select `CANNOPY`.
+2. In the realm selector, select `SYSTEM_REALM`.
 
 ## 2. Disable email verification
 
@@ -43,7 +43,7 @@ The service also writes `requiredActions: []` when it creates the user. The real
 
 ## 5. Configure the client for service-account user creation
 
-Open **Clients** → **Cannopy_client**.
+Open **Clients** → **api_client**.
 
 ### Capability configuration
 
@@ -65,7 +65,7 @@ These are the recommended roles for this application.
 
 ### Full realm-management access (only if explicitly required)
 
-To give this client all administration permissions in the `CANNOPY` realm, assign the `realm-management` client role **`realm-admin`** to the client’s service account.
+To give this client all administration permissions in the `SYSTEM_REALM` realm, assign the `realm-management` client role **`realm-admin`** to the client’s service account.
 
 `realm-admin` can manage users, clients, roles, groups, authentication, and other realm settings. Treat the client secret like an administrator password and do not use this role unless the service genuinely needs unrestricted realm administration.
 
@@ -75,8 +75,8 @@ The following values must match the configured client:
 
 ```env
 KEYCLOAK_BASE_URL=http://localhost:8080
-KEYCLOAK_REALM_NAME=CANNOPY
-KEYCLOAK_CLIENT_ID=Cannopy_client
+KEYCLOAK_REALM_NAME=SYSTEM_REALM
+KEYCLOAK_CLIENT_ID=api_client
 KEYCLOAK_CLIENT_SECRET=<client-secret-from-Keycloak>
 KEYCLOAK_GRANT_TYPE=client_credentials
 ```

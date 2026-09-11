@@ -10,10 +10,6 @@
         "outDir": "dist/src"
       },
       {
-        "include": "modules/non-cannopy-skus-admin/proto/*.proto",
-        "outDir": "dist/src"
-      },
-      {
         "include": "modules/auth-system-user-grpc/proto/*.proto",
         "outDir": "dist/src"
       },
