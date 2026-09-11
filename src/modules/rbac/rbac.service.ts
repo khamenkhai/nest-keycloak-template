@@ -99,15 +99,12 @@ export class RbacService {
         permissionId: permission.id!,
       });
 
-      const isGroupPolicy = associatedPolicies.some((p: any) => {
-        if (p.type !== 'group') return false;
-        try {
-          const config = JSON.parse(p.config?.groups || '[]');
-          return config.some((g: any) => g.id === groupId);
-        } catch {
-          return false;
-        }
-      });
+      const isGroupPolicy = await this.hasMatchingGroupPolicy(
+        client,
+        clientUuid,
+        associatedPolicies,
+        groupId,
+      );
 
       if (isGroupPolicy && permission.type === 'scope') {
         const associatedScopes = await client.clients.getAssociatedScopes({
@@ -332,5 +329,42 @@ export class RbacService {
     const groups = await client.groups.find({ search: groupName });
     const group = groups.find((g: any) => g.name === groupName);
     return group?.id ?? null;
+  }
+
+  private async hasMatchingGroupPolicy(
+    client: any,
+    clientUuid: string,
+    associatedPolicies: any[],
+    groupId: string,
+  ): Promise<boolean> {
+    for (const p of associatedPolicies) {
+      if (p.type !== 'group') continue;
+
+      const fullPolicy = await client.clients.findPolicyByName({
+        id: clientUuid,
+        name: p.name,
+      });
+
+      if (!fullPolicy) continue;
+
+      const groupsConfig = fullPolicy.config?.groups;
+      if (!groupsConfig) continue;
+
+      try {
+        const groups =
+          typeof groupsConfig === 'string'
+            ? JSON.parse(groupsConfig)
+            : groupsConfig;
+        if (
+          Array.isArray(groups) &&
+          groups.some((g: any) => g.id === groupId)
+        ) {
+          return true;
+        }
+      } catch {
+        continue;
+      }
+    }
+    return false;
   }
 }

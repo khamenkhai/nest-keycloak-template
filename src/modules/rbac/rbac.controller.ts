@@ -5,19 +5,16 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from 'nest-keycloak-connect';
 import { RbacService } from './rbac.service';
-import {
-  AssignPermissionsDto,
-  GetGroupPermissionsDto,
-  RemovePermissionsDto,
-} from './dto';
+import { AssignPermissionsDto, RemovePermissionsDto } from './dto';
 
 @ApiTags('RBAC')
 @ApiBearerAuth('Authorization')
-@Controller('rbac')
+@Controller()
 export class RbacController {
   constructor(private readonly rbacService: RbacService) {}
 
@@ -42,12 +39,11 @@ export class RbacController {
     return this.rbacService.listScopes();
   }
 
-  @Post('group-permissions')
+  @Get('group-permissions')
   @Public()
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get permissions assigned to a group' })
-  getGroupPermissions(@Body() dto: GetGroupPermissionsDto) {
-    return this.rbacService.getGroupPermissions(dto.groupName);
+  getGroupPermissions(@Query('groupName') groupName: string) {
+    return this.rbacService.getGroupPermissions(groupName);
   }
 
   @Post('assign')
