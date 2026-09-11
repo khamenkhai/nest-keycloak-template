@@ -52,7 +52,6 @@ async function bootstrap() {
   if (!isProduction) {
     const config = new DocumentBuilder()
       .setTitle('API Documentation')
-      .setDescription('The official API documentation for the POS system.')
       .setVersion('1.0')
       .addBearerAuth()
       .addServer(`/`, 'Direct Server')
@@ -98,4 +97,7 @@ async function bootstrap() {
   logger.log(`Server is running on http://localhost:${port}`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Application failed to start:', err);
+  process.exit(1);
+});

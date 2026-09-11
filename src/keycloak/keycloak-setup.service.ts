@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { KeycloakService } from './keycloak.service';
+import KeycloakAdminClient from '@keycloak/keycloak-admin-client';
 
 export interface SetupResult {
   scopes: string[];
@@ -12,14 +13,17 @@ export interface SetupResult {
 export class KeycloakSetupService {
   private readonly logger = new Logger(KeycloakSetupService.name);
   private readonly keycloakClientId: string = process.env.KEYCLOAK_CLIENT_ID!;
-  private readonly adminGroupId: string = process.env.KEYCLOAK_ADMIN_GROUP_ID!;
-  private readonly userGroupId: string = process.env.KEYCLOAK_USER_GROUP_ID!;
 
   private readonly scopes = ['create', 'read', 'update', 'delete'];
   private readonly resources = [
     { name: 'Posts', displayName: 'Posts Resource' },
     { name: 'Categories', displayName: 'Categories Resource' },
   ];
+
+  private readonly groupNames = {
+    admin: 'admin-group',
+    user: 'user-group',
+  };
 
   constructor(private readonly keycloakService: KeycloakService) {}
 
@@ -30,6 +34,11 @@ export class KeycloakSetupService {
 
     await this.keycloakService.authenticate();
     const client = this.keycloakService.getClient();
+
+    // 0. Create groups and get their IDs
+    this.logger.log('Ensuring groups exist...');
+    const adminGroupId = await this.ensureGroup(client, this.groupNames.admin);
+    const userGroupId = await this.ensureGroup(client, this.groupNames.user);
 
     // Find the internal UUID for the client by its clientId string
     const clients = await client.clients.find({
@@ -102,12 +111,12 @@ export class KeycloakSetupService {
       {
         name: 'admin-group-policy',
         description: 'Policy for admin group members',
-        groupId: this.adminGroupId,
+        groupId: adminGroupId,
       },
       {
         name: 'user-group-policy',
         description: 'Policy for user group members',
-        groupId: this.userGroupId,
+        groupId: userGroupId,
       },
     ];
 
@@ -191,5 +200,27 @@ export class KeycloakSetupService {
       policies: createdPolicies,
       permissions: createdPermissions,
     };
+  }
+
+  private async ensureGroup(
+    client: KeycloakAdminClient,
+    groupName: string,
+  ): Promise<string> {
+    const existingGroups = await client.groups.find({
+      search: groupName,
+    });
+    const existingGroup = existingGroups.find((g: any) => g.name === groupName);
+
+    if (existingGroup?.id) {
+      this.logger.log(`Group "${groupName}" already exists`);
+      return existingGroup.id;
+    }
+
+    const created = await client.groups.create({
+      name: groupName,
+    });
+
+    this.logger.log(`Group "${groupName}" created`);
+    return created.id;
   }
 }

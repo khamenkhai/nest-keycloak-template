@@ -12,9 +12,24 @@ const devFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(({ timestamp, level, message, context, stack }) => {
-    const ctx = context ? `[${context}]` : '';
-    const trace = stack ? `\n${stack}` : '';
-    return `${timestamp}  ${level}  ${ctx}  ${message}${trace}`;
+    const formatValue = (val: unknown): string => {
+      if (val === undefined || val === null) return '';
+      if (typeof val === 'string') return val;
+      if (typeof val === 'number' || typeof val === 'boolean') return `${val}`;
+      // Safely stringify objects, functions, or symbols
+      return JSON.stringify(val);
+    };
+
+    const formattedTs = formatValue(timestamp);
+    const formattedLvl = formatValue(level);
+    const formattedCtx = formatValue(context);
+    const formattedMsg = formatValue(message);
+    const formattedTrace = formatValue(stack);
+
+    const ctx = formattedCtx ? `[${formattedCtx}]` : '';
+    const trace = formattedTrace ? `\n${formattedTrace}` : '';
+
+    return `${formattedTs}  ${formattedLvl}  ${ctx}  ${formattedMsg}${trace}`;
   }),
 );
 

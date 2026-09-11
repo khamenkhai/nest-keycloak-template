@@ -9,8 +9,8 @@ export function decodeJwtToken(token: string): any {
     const payload = parts[1];
     const decoded = Buffer.from(payload, 'base64').toString('utf-8');
     return JSON.parse(decoded);
-  } catch (error) {
-    throw new UnauthorizedException('Invalid token');
+  } catch (error: unknown) {
+    throw new UnauthorizedException('Invalid token', { cause: error as Error });
   }
 }
 

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { KeycloakService } from 'src/keycloak';
-import { LoginDto, LoginResponseDto, RegisterDto } from './dto';
+import { AssignGroupDto, LoginDto, LoginResponseDto, RegisterDto } from './dto';
 import { extractEmailFromToken } from 'src/common/utils/jwt.util';
 
 @Injectable()
@@ -78,7 +78,7 @@ export class AuthService {
 
       // Assign new user to 'user' group (read-only by default)
       try {
-        await this.keycloakService.addUserToGroup(kcUser.id, 'user');
+        await this.keycloakService.addUserToGroup(kcUser.id, 'user-group');
       } catch (groupError) {
         this.logger.warn('Failed to assign user to group', {
           error: groupError.message,
@@ -260,5 +260,27 @@ export class AuthService {
       });
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async assignToGroup(
+    assignGroupDto: AssignGroupDto,
+  ): Promise<{ success: boolean; message: string }> {
+    const { userId, groupName } = assignGroupDto;
+
+    if (!this.keycloakService.isConfigured()) {
+      throw new UnauthorizedException('Authentication service not available');
+    }
+
+    await this.keycloakService.addUserToGroup(userId, groupName);
+
+    this.logger.log('User assigned to group successfully', {
+      userId,
+      groupName,
+    });
+
+    return {
+      success: true,
+      message: `User assigned to group "${groupName}" successfully`,
+    };
   }
 }

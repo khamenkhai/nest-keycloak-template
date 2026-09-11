@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'nest-keycloak-connect';
 import { AuthService } from './auth.service';
 import {
+  AssignGroupDto,
   LoginDto,
   LoginResponseDto,
   RefreshTokenDto,
@@ -79,5 +80,29 @@ export class AuthController {
   @Public()
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return await this.authService.refreshToken(refreshTokenDto.refreshToken);
+  }
+
+  @Post('assign-group')
+  @ApiOperation({ summary: 'Assign a user to a Keycloak group' })
+  @ApiSingleResponse(
+    'User assigned to group successfully',
+    {
+      type: 'object',
+      properties: { success: { type: 'boolean' }, message: { type: 'string' } },
+    },
+    '/admin/v1/auth/assign-group',
+    HttpStatus.OK,
+    'User assigned to group successfully',
+  )
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'User or group not found',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request',
+  })
+  async assignGroup(@Body() assignGroupDto: AssignGroupDto) {
+    return await this.authService.assignToGroup(assignGroupDto);
   }
 }

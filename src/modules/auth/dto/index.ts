@@ -1,3 +1,4 @@
+export * from './assign-group.dto';
 export * from './login-response.dto';
 export * from './login.dto';
 export * from './register.dto';

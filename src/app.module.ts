@@ -17,10 +17,10 @@ import {
 import { KeycloakConfig } from './keycloak/keyclock';
 import { KeycloakConfigModule } from './keycloak/keycloak-config.module';
 import { KeycloakModule } from './keycloak';
-import { UserMiddleware } from './common/middlewares/user.middleware';
 import { UploadModule } from './common/upload/upload.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { RbacModule } from './modules/rbac/rbac.module';
 
 @Module({
   imports: [
@@ -48,6 +48,7 @@ import { PostsModule } from './modules/posts/posts.module';
           { path: '/v1/categories', module: CategoriesModule },
           { path: '/v1/posts', module: PostsModule },
           { path: '/v1/keycloak', module: KeycloakModule },
+          { path: '/v1/rbac', module: RbacModule },
         ],
       },
     ]),
@@ -61,6 +62,7 @@ import { PostsModule } from './modules/posts/posts.module';
     PostsModule,
     UploadModule,
     KeycloakModule,
+    RbacModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: AuthGuard },
@@ -72,6 +74,6 @@ import { PostsModule } from './modules/posts/posts.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(HttpLoggerMiddleware, UserMiddleware).forRoutes('*');
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
   }
 }
