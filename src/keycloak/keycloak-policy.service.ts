@@ -24,7 +24,7 @@ export class KeycloakPolicyService {
       return await keycloakClient.clients.createPolicy(
         {
           id: this.keycloakClientId,
-          type: '',
+          type: 'group',
         },
         {
           name,
@@ -32,15 +32,8 @@ export class KeycloakPolicyService {
           type: 'group',
           logic: Logic.POSITIVE,
           decisionStrategy: DecisionStrategy.AFFIRMATIVE,
-          config: {
-            groups: JSON.stringify([
-              {
-                id: keycloakGroupId,
-                extendChildren: false,
-              },
-            ]),
-          },
-        },
+          groups: [{ id: keycloakGroupId, extendChildren: false }],
+        } as any,
       );
     }
   }
@@ -64,7 +57,7 @@ export class KeycloakPolicyService {
         return await keycloakClient.clients.updatePolicy(
           {
             id: this.keycloakClientId,
-            type: '',
+            type: 'group',
             policyId: policy.id!,
           },
           {
@@ -73,15 +66,8 @@ export class KeycloakPolicyService {
             type: 'group',
             logic: Logic.POSITIVE,
             decisionStrategy: DecisionStrategy.AFFIRMATIVE,
-            config: {
-              groups: JSON.stringify([
-                {
-                  id: keycloakGroupId,
-                  extendChildren: false,
-                },
-              ]),
-            },
-          },
+            groups: [{ id: keycloakGroupId, extendChildren: false }],
+          } as any,
         );
       }
     }

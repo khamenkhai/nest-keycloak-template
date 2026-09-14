@@ -122,21 +122,14 @@ export class KeycloakSetupService {
 
     for (const policy of policies) {
       try {
-        await client.clients.createPolicy(
-          { id: clientUuid, type: '' },
-          {
-            name: policy.name,
-            description: policy.description,
-            type: 'group',
-            logic: 'POSITIVE' as any,
-            decisionStrategy: 'AFFIRMATIVE' as any,
-            config: {
-              groups: JSON.stringify([
-                { id: policy.groupId, extendChildren: false },
-              ]),
-            },
-          },
-        );
+        await client.clients.createPolicy({ id: clientUuid, type: 'group' }, {
+          name: policy.name,
+          description: policy.description,
+          type: 'group',
+          logic: 'POSITIVE' as any,
+          decisionStrategy: 'AFFIRMATIVE' as any,
+          groups: [{ id: policy.groupId, extendChildren: false }],
+        } as any);
         createdPolicies.push(policy.name);
         this.logger.log(`Policy "${policy.name}" created`);
       } catch (error) {

@@ -6,7 +6,13 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma/prisma.service';
 import { KeycloakService } from 'src/keycloak';
-import { AssignGroupDto, LoginDto, LoginResponseDto, RegisterDto } from './dto';
+import {
+  AssignGroupDto,
+  LoginDto,
+  LoginResponseDto,
+  RegisterDto,
+  UserProfileDto,
+} from './dto';
 import { extractEmailFromToken } from 'src/common/utils/jwt.util';
 
 @Injectable()
@@ -76,9 +82,11 @@ export class AuthService {
         );
       }
 
-      // Assign new user to 'user' group (read-only by default)
+      // Assign user to group based on role
+      const groupName =
+        registerDto.role === 'ADMIN' ? 'admin-group' : 'user-group';
       try {
-        await this.keycloakService.addUserToGroup(kcUser.id, 'user-group');
+        await this.keycloakService.addUserToGroup(kcUser.id, groupName);
       } catch (groupError) {
         this.logger.warn('Failed to assign user to group', {
           error: groupError.message,
@@ -260,6 +268,30 @@ export class AuthService {
       });
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async getProfile(userId: string): Promise<UserProfileDto> {
+    this.logger.debug('Getting user profile', { userId });
+
+    const user = await this.prismaService.user.findFirst({
+      where: { keycloakUserId: userId },
+    });
+
+    if (!user) {
+      this.logger.warn('User not found', { userId });
+      throw new UnauthorizedException('User not found');
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      status: user.status,
+      keycloakUserId: user.keycloakUserId,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
   async assignToGroup(

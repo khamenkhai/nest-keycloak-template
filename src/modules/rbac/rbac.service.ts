@@ -152,34 +152,28 @@ export class RbacService {
       await client.clients.updatePolicy(
         {
           id: clientUuid,
-          type: '',
+          type: 'group',
           policyId: existingPolicy.id!,
         },
         {
+          id: existingPolicy.id,
           name: policyName,
           description: `Policy for ${groupName} members`,
           type: 'group',
           logic: 'POSITIVE' as any,
           decisionStrategy: 'AFFIRMATIVE' as any,
-          config: {
-            groups: JSON.stringify([{ id: groupId, extendChildren: false }]),
-          },
-        },
+          groups: [{ id: groupId, extendChildren: false }],
+        } as any,
       );
     } else {
-      await client.clients.createPolicy(
-        { id: clientUuid, type: '' },
-        {
-          name: policyName,
-          description: `Policy for ${groupName} members`,
-          type: 'group',
-          logic: 'POSITIVE' as any,
-          decisionStrategy: 'AFFIRMATIVE' as any,
-          config: {
-            groups: JSON.stringify([{ id: groupId, extendChildren: false }]),
-          },
-        },
-      );
+      await client.clients.createPolicy({ id: clientUuid, type: 'group' }, {
+        name: policyName,
+        description: `Policy for ${groupName} members`,
+        type: 'group',
+        logic: 'POSITIVE' as any,
+        decisionStrategy: 'AFFIRMATIVE' as any,
+        groups: [{ id: groupId, extendChildren: false }],
+      } as any);
     }
 
     for (const scopeName of scopes) {
@@ -347,7 +341,7 @@ export class RbacService {
 
       if (!fullPolicy) continue;
 
-      const groupsConfig = fullPolicy.config?.groups;
+      const groupsConfig = fullPolicy.groups ?? fullPolicy.config?.groups;
       if (!groupsConfig) continue;
 
       try {

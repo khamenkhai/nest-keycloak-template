@@ -1,6 +1,6 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Public } from 'nest-keycloak-connect';
+import { AuthenticatedUser, Public } from 'nest-keycloak-connect';
 import { AuthService } from './auth.service';
 import {
   AssignGroupDto,
@@ -8,11 +8,12 @@ import {
   LoginResponseDto,
   RefreshTokenDto,
   RegisterDto,
+  UserProfileDto,
 } from './dto';
 import { ApiSingleResponse } from 'src/common/decorators/api-response.decorator';
 
 @Controller('')
-@ApiTags('Admin Auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -39,7 +40,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'Admin login with email and password' })
+  @ApiOperation({ summary: 'Login with email and password' })
   @ApiSingleResponse(
     'Login successful',
     LoginResponseDto,
@@ -104,5 +105,22 @@ export class AuthController {
   })
   async assignGroup(@Body() assignGroupDto: AssignGroupDto) {
     return await this.authService.assignToGroup(assignGroupDto);
+  }
+
+  @Get('profile')
+  @ApiOperation({ summary: 'Get authenticated user profile' })
+  @ApiSingleResponse(
+    'User profile retrieved successfully',
+    UserProfileDto,
+    '/admin/v1/auth/profile',
+    HttpStatus.OK,
+    'User profile retrieved successfully',
+  )
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Unauthorized - invalid or missing token',
+  })
+  async getProfile(@AuthenticatedUser() user: any): Promise<UserProfileDto> {
+    return await this.authService.getProfile(user.sub);
   }
 }
