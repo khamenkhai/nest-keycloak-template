@@ -8,6 +8,11 @@ import cookieParser from 'cookie-parser';
 import * as path from 'path';
 import { AppModule } from './app.module';
 import { PrismaClientExceptionFilter } from './common/interceptors/prisma-exception-filter';
+import { AuthModule } from './modules/auth/auth.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { PostsModule } from './modules/posts/posts.module';
+import { KeycloakModule } from './keycloak';
+import { RbacModule } from './modules/rbac/rbac.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -49,28 +54,46 @@ async function bootstrap() {
   );
 
   // --- Documentation (Development Only) ---
+  const apiDocs = [
+    { slug: 'auth', title: 'Auth API', modules: [AuthModule] },
+    {
+      slug: 'content',
+      title: 'Content API',
+      modules: [PostsModule, CategoriesModule],
+    },
+    {
+      slug: 'admin',
+      title: 'Admin API',
+      modules: [KeycloakModule, RbacModule],
+    },
+  ];
+
   if (!isProduction) {
-    const config = new DocumentBuilder()
-      .setTitle('API Documentation')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .addServer(`/`, 'Direct Server')
-      .build();
+    for (const { slug, title, modules } of apiDocs) {
+      const config = new DocumentBuilder()
+        .setTitle(title)
+        .setVersion('1.0')
+        .addBearerAuth(undefined, 'Authorization')
+        .addServer('/', 'Direct Server')
+        .build();
 
-    const document = SwaggerModule.createDocument(app, config);
+      const document = SwaggerModule.createDocument(app, config, {
+        include: modules,
+      });
 
-    // Standard Swagger UI
-    SwaggerModule.setup('swagger', app, document, {
-      jsonDocumentUrl: 'swagger/json',
-    });
+      // Standard Swagger UI
+      SwaggerModule.setup(`docs/${slug}`, app, document, {
+        jsonDocumentUrl: `docs/${slug}/json`,
+      });
 
-    // Modern Scalar UI
-    app.use(
-      '/reference',
-      apiReference({
-        content: document,
-      }),
-    );
+      // Modern Scalar UI
+      app.use(
+        `/reference/${slug}`,
+        apiReference({
+          content: document,
+        }),
+      );
+    }
   }
 
   // --- Implement Prisma Exception Filter ---
@@ -85,12 +108,11 @@ async function bootstrap() {
     const blue = '\x1b[34m';
     const reset = '\x1b[0m';
 
-    logger.log(
-      `${blue}Swagger Documentation: http://localhost:${port}/swagger${reset}`,
-    );
-    logger.log(
-      `${blue}Scalar Documentation: http://localhost:${port}/reference${reset}`,
-    );
+    for (const { slug, title } of apiDocs) {
+      logger.log(
+        `${blue}${title} — Swagger: http://localhost:${port}/docs/${slug} | Scalar: http://localhost:${port}/reference/${slug}${reset}`,
+      );
+    }
   }
 
   const logger = new Logger('Bootstrap');

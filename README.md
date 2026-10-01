@@ -13,9 +13,10 @@ A production-ready [NestJS](https://github.com/nestjs/nest) starter template fea
   - Role-Based Access Control (RBAC).
   - Throttling (Rate Limiting).
   - Helmet (Security headers) & CORS enabled.
-- **Documentation**:
-  - Swagger UI: `http://localhost:3000/swagger`
-  - Scalar UI: `http://localhost:3000/reference`
+- **Documentation** (split by domain, dev only):
+  - Auth: Swagger `http://localhost:3000/docs/auth` · Scalar `http://localhost:3000/reference/auth`
+  - Content (Posts/Categories): Swagger `http://localhost:3000/docs/content` · Scalar `http://localhost:3000/reference/content`
+  - Admin (Keycloak/RBAC): Swagger `http://localhost:3000/docs/admin` · Scalar `http://localhost:3000/reference/admin`
 - **Logging**: Advanced logging with Winston (Winston Daily Rotate File).
 - **Validation**: Global Pipe with `class-validator` and `class-transformer`.
 - **Docker**: Full Docker Compose setup for local development.
