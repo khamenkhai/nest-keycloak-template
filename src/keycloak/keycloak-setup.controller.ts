@@ -5,7 +5,7 @@ import { KeycloakSetupService } from './keycloak-setup.service';
 
 @ApiTags('Keycloak Setup')
 @ApiBearerAuth('Authorization')
-@Controller('keycloak')
+@Controller()
 export class KeycloakSetupController {
   constructor(private readonly keycloakSetupService: KeycloakSetupService) {}
 

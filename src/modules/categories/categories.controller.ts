@@ -25,7 +25,7 @@ import { CategoryListItemDto, CategoryResponseDto } from './dto/response.dto';
 @ApiTags('Categories')
 @ApiBearerAuth('Authorization')
 @Resource('Categories')
-@Controller('categories')
+@Controller()
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 

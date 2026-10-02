@@ -19,6 +19,7 @@ import { KeycloakConfigModule } from './keycloak/keycloak-config.module';
 import { KeycloakModule } from './keycloak';
 import { UploadModule } from './common/upload/upload.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { CategoriesV2Module } from './modules/categories/v2/categories-v2.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { RbacModule } from './modules/rbac/rbac.module';
 
@@ -41,16 +42,12 @@ import { RbacModule } from './modules/rbac/rbac.module';
       ],
     }),
     RouterModule.register([
-      {
-        path: 'api',
-        children: [
-          { path: '/v1/auth', module: AuthModule },
-          { path: '/v1/categories', module: CategoriesModule },
-          { path: '/v1/posts', module: PostsModule },
-          { path: '/v1/keycloak', module: KeycloakModule },
-          { path: '/v1/rbac', module: RbacModule },
-        ],
-      },
+      { path: '/v1/auth', module: AuthModule },
+      { path: '/v1/categories', module: CategoriesModule },
+      { path: '/v2/categories', module: CategoriesV2Module },
+      { path: '/v1/posts', module: PostsModule },
+      { path: '/v1/keycloak', module: KeycloakModule },
+      { path: '/v1/rbac', module: RbacModule },
     ]),
     KeycloakConnectModule.registerAsync({
       useExisting: KeycloakConfig,
@@ -59,6 +56,7 @@ import { RbacModule } from './modules/rbac/rbac.module';
     PrismaModule,
     AuthModule,
     CategoriesModule,
+    CategoriesV2Module,
     PostsModule,
     UploadModule,
     KeycloakModule,

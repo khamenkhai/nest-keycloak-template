@@ -25,7 +25,7 @@ import { PostListItemDto, PostResponseDto } from './dto/response.dto';
 @ApiTags('Posts')
 @ApiBearerAuth('Authorization')
 @Resource('Posts')
-@Controller('posts')
+@Controller()
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
